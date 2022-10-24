@@ -1,7 +1,9 @@
-package org.limmen.hero.domain;
+package org.limmen.hero.domain.factory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.limmen.hero.domain.Location;
 
 public class LocationFactory {
   

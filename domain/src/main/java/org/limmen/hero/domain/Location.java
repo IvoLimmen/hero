@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
-public record Location(String name, List<Link> links) {
+public record Location(String name, String description, List<Link> links) {
 
   public boolean canTravel(Direction direction) {
     if (direction == null) {

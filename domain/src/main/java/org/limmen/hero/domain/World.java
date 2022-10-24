@@ -3,6 +3,7 @@ package org.limmen.hero.domain;
 import org.limmen.hero.command.Command;
 import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.command.CommandParser;
+import org.limmen.hero.domain.factory.LocationFactory;
 import org.limmen.hero.exceptions.NoCommandException;
 import org.limmen.hero.exceptions.UnknownCommandException;
 
@@ -43,6 +44,10 @@ public class World {
   public void listCommands() {
     System.out.println("The following commands are available:");
     CommandFactory.get().list().stream().map(Command::getName).forEach(System.out::println);
+  }
+
+  public void describeLocation() {
+    System.out.println(getCurrentLocation().description());    
   }
 
   public Location getCurrentLocation() {
