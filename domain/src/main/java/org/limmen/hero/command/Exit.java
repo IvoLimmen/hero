@@ -6,7 +6,7 @@ public class Exit extends Command {
   
   @Override
   public String getName() {
-    return "exit";
+    return "Exit";
   }
 
   @Override

@@ -31,6 +31,16 @@ public class Go extends Command {
     if (world.getCurrentLocation().canTravel(direction)) {
       world.go(direction);
       System.out.println("You are now at " + world.getCurrentLocation().name());
+      if (world.getCurrentLocation().hasEnemies()) {
+        if (world.getCurrentLocation().enemies().size() == 1) {
+          System.out.println("There is a " + world.getCurrentLocation().enemies().get(0).getName() + " here!");
+        } else {
+          System.out.println("There are enemies at this location!");
+          world.getCurrentLocation().enemies().forEach(e -> {
+            System.out.println(e.getName());
+          });
+        }
+      }
     }
   }
 }

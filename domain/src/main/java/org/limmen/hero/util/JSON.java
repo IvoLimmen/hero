@@ -13,7 +13,7 @@ public class JSON {
 
   public static <T> List<T> loadList(String file, Class<T> clazz) {
     try {
-      Path resource = Path.of(clazz.getResource("/weapons.json").toURI());
+      Path resource = Path.of(clazz.getResource(file).toURI());
       return objectMapper.readValue(resource.toFile(),
           objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
     } catch (Exception e) {

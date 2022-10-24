@@ -13,7 +13,7 @@ public class WeaponFactory {
   private List<Weapon> weapons = new ArrayList<>();
 
   public WeaponFactory() {
-    this.weapons = JSON.loadList("./weapons.json", Weapon.class);
+    this.weapons = JSON.loadList("/weapons.json", Weapon.class);
   }
 
   public static WeaponFactory get() {
