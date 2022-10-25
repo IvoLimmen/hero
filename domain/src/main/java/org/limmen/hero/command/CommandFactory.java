@@ -27,9 +27,9 @@ public class CommandFactory {
     return this.commands;
   }
 
-  public Optional<Command> byName(String name) {
+  public Optional<Command> byNameOrAlias(String name) {
     return this.commands.stream()
-        .filter(f -> f.getName().equalsIgnoreCase(name))
+        .filter(f -> f.getName().equalsIgnoreCase(name) || f.getAliasses().contains(name))
         .findFirst();
   }
 }

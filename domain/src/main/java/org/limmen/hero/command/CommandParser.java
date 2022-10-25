@@ -21,7 +21,7 @@ public class CommandParser {
     var command = parts[0];
     var arguments = Arrays.asList(parts).subList(1, parts.length);
 
-    var cmd = CommandFactory.get().byName(command)
+    var cmd = CommandFactory.get().byNameOrAlias(command)
         .orElseThrow(() -> { 
           throw UnknownCommandException.builder()
               .command(command)

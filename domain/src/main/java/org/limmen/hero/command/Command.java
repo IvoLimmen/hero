@@ -1,5 +1,6 @@
 package org.limmen.hero.command;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.limmen.hero.domain.PromptProvider;
@@ -10,6 +11,10 @@ public abstract class Command {
   private List<String> arguments;
   private PromptProvider promptProvider;
 
+  public List<String> getAliasses() {
+    return Collections.emptyList();
+  }
+  
   public abstract String getName();
 
   public Command inject(List<String> arguments, PromptProvider promptProvider) {
