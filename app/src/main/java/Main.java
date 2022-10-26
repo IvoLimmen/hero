@@ -29,7 +29,7 @@ public class Main {
         List.of()),
       new Location("space", "Vast space. Nothing to see here.",
         List.of(new Link(Direction.UP, "start")),
-        List.of(EnemyFactory.get().byName("borg"))));
+        List.of(EnemyFactory.get().byName("borg").get())));
   }
 
   private Hero start() {

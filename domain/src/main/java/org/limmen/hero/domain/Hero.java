@@ -38,4 +38,26 @@ public class Hero {
   public void setWeapon(Weapon weapon) {
     this.weapon = weapon;
   }
+
+  public Integer hit(Hero enemy) {
+    var result = Dice.d20(enemy.getArmour());
+
+    // we hit
+    if (result.success()) {
+      int value = Dice.d12(0).value();
+      enemy.takeDamage(value);
+
+      return value;
+    }
+
+    return 0;
+  }
+
+  public void takeDamage(Integer damage) {
+    this.health -= damage;
+  }
+
+  public boolean isDead() {
+    return this.health <= 0;
+  }
 }

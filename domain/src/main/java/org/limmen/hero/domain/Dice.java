@@ -10,6 +10,10 @@ public class Dice {
     return dice(20, minimum);
   }
 
+  public static DiceThrow d12(int minimum) {
+    return dice(12, minimum);
+  }
+
   private static DiceThrow dice(int max, int min) {
     int value = rnd.nextInt(max + 1);
     return new DiceThrow(max, min, value, value > min);
