@@ -1,6 +1,8 @@
 package org.limmen.hero.domain;
 
-import org.limmen.hero.command.Command;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.command.CommandParser;
 import org.limmen.hero.domain.factory.LocationFactory;
@@ -43,7 +45,19 @@ public class World {
 
   public void listCommands() {
     System.out.println("The following commands are available:");
-    CommandFactory.get().list().stream().map(Command::getName).forEach(System.out::println);
+    var cmds = CommandFactory.get().list().stream().toList();
+    
+    cmds.forEach(cmd -> {
+      System.out.print(cmd.getName());
+
+      if (!cmd.getAliasses().isEmpty()) {
+        System.out.print(" (or: ");
+        System.out.print(cmd.getAliasses().stream().collect(Collectors.joining(",")));
+        System.out.print(")");
+      }
+
+      System.out.println("");
+    });      
   }
 
   public void describeLocation() {
@@ -54,13 +68,51 @@ public class World {
     return currentLocation;
   }
 
+  public void changeLocation(List<String> arguments, PromptProvider promptProvider) {
+    Direction direction = null;
+    if (!arguments.isEmpty()) {
+      direction = Direction.safeParse(arguments.get(0).toUpperCase());
+      if (!getCurrentLocation().canTravel(direction)) {
+        direction = null;
+        listDirections();
+      }
+    }
+
+    while (direction == null) {
+      direction = Direction.safeParse(askArg(promptProvider, "Where to?").toUpperCase());
+      if (direction == null || !getCurrentLocation().canTravel(direction)) {
+        listDirections();
+      }
+    }
+
+    if (getCurrentLocation().canTravel(direction)) {
+      go(direction);
+      System.out.println("You are now at " + getCurrentLocation().name());
+      if (getCurrentLocation().hasEnemies()) {
+        if (getCurrentLocation().enemies().size() == 1) {
+          System.out.println("There is a " + getCurrentLocation().enemies().get(0).getName() + " here!");
+        } else {
+          System.out.println("There are enemies at this location!");
+          getCurrentLocation().enemies().forEach(e -> {
+            System.out.println(e.getName());
+          });
+        }
+      }
+    }
+  }
+    
+  private String askArg(PromptProvider promptProvider, String prompt) {
+    return promptProvider.ask(prompt);
+  }
+
   public void start(PromptProvider prompt) {
     while (true) {
       String line = null;
       try {
         line = prompt.ask("?");
 
-        CommandParser.parse(line, prompt).execute(this);
+        var parsedCommand = CommandParser.parse(line);
+        parsedCommand.command().execute(this, parsedCommand.arguments(), prompt);
 
       } catch (UnknownCommandException uce) {
         System.out.println(uce.getMessage());

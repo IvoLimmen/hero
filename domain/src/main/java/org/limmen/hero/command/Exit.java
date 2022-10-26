@@ -2,6 +2,7 @@ package org.limmen.hero.command;
 
 import java.util.List;
 
+import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.domain.World;
 
 public class Exit extends Command {
@@ -17,7 +18,7 @@ public class Exit extends Command {
   }
 
   @Override
-  public void execute(World world) {
+  public void execute(World world, List<String> arguments, PromptProvider promptProvider) {
     world.exitGame();
   }
 }

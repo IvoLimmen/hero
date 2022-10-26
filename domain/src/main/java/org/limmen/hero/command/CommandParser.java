@@ -2,7 +2,6 @@ package org.limmen.hero.command;
 
 import java.util.Arrays;
 
-import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.exceptions.NoCommandException;
 import org.limmen.hero.exceptions.UnknownCommandException;
 
@@ -11,7 +10,7 @@ public class CommandParser {
   public CommandParser() {
   }
 
-  public static Command parse(String input, PromptProvider promptProvider) {
+  public static ParsedCommand parse(String input) {
     if (input == null || input.isEmpty()) {
       throw NoCommandException.builder().build();
     }
@@ -28,6 +27,6 @@ public class CommandParser {
               .build(); 
         });
         
-    return cmd.inject(arguments, promptProvider);
+    return new ParsedCommand(cmd, arguments);
   }
 }
