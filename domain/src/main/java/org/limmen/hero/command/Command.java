@@ -3,7 +3,6 @@ package org.limmen.hero.command;
 import java.util.Collections;
 import java.util.List;
 
-import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.domain.World;
 
 public abstract class Command {
@@ -14,5 +13,5 @@ public abstract class Command {
   
   public abstract String getName();
 
-  public abstract void execute(World world, List<String> arguments, PromptProvider promptProvider);
+  public abstract void execute(World world, List<String> arguments);
 }

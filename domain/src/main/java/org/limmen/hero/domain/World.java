@@ -1,5 +1,6 @@
 package org.limmen.hero.domain;
 
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,6 +8,7 @@ import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.command.CommandParser;
 import org.limmen.hero.domain.factory.EnemyFactory;
 import org.limmen.hero.domain.factory.LocationFactory;
+import org.limmen.hero.domain.factory.WeaponFactory;
 import org.limmen.hero.exceptions.NoCommandException;
 import org.limmen.hero.exceptions.UnknownCommandException;
 
@@ -16,9 +18,30 @@ public class World {
 
   private Location currentLocation;
 
-  public World(Hero hero, Location startLocation) {
-    this.hero = hero;
+  private PrintWriter writer;
+
+  private PromptProvider promptProvider;
+
+  public World(PrintWriter writer, PromptProvider promptProvider, Location startLocation) {
     this.currentLocation = startLocation;
+    this.writer = writer;
+    this.promptProvider = promptProvider;
+  }
+
+  private void intro() {
+    println("Welcome to space station X5-Y.");
+  }
+
+  private void createHero() {      
+      var name = ask("What is your name?");
+
+      var hero = new Hero();
+      hero.setName(name);
+      hero.setHealth(20);
+      hero.setWeapon(WeaponFactory.get().byName("Lazer gun"));
+      hero.setArmour(10 + Dice.d10(0).value());
+      
+      this.hero = hero;
   }
 
   public Hero getHero() {
@@ -30,9 +53,9 @@ public class World {
   }
 
   public void listDirections() {
-    System.out.println("You can go to the following directions:");
+    println("You can go to the following directions:");
     this.currentLocation.links().forEach(l -> {
-      System.out.println(l.direction());
+      println(l.direction());
     });
   }
 
@@ -40,40 +63,40 @@ public class World {
     if (currentLocation.canTravel(direction)) {
       this.currentLocation = LocationFactory.get()
           .byName(currentLocation.getNewLocationName(direction));
-      System.out.println("You are now at " + getCurrentLocation().name());
+      println("You are now at " + getCurrentLocation().name());
       listEnemies();    
     } else {
-      System.out.println("You can not go in that direction.");
+      println("You can not go in that direction.");
     }
   }
 
   public void showStatus() {
-    System.out.println("You are " + getHero().getName());
-    System.out.println("Health: " + getHero().getHealth());
-    System.out.println("Armour: " + getHero().getArmour());
-    System.out.println("Weapon: " + getHero().getWeapon().name() + " Damage: " + getHero().getWeapon().damage());
+    println("You are " + getHero().getName());
+    println("Health: " + getHero().getHealth());
+    println("Armour: " + getHero().getArmour());
+    println("Weapon: " + getHero().getWeapon().name() + " Damage: " + getHero().getWeapon().damage());
   }
 
   public void listCommands() {
-    System.out.println("The following commands are available:");
+    println("The following commands are available:");
     var cmds = CommandFactory.get().list().stream().toList();
 
     cmds.forEach(cmd -> {
-      System.out.print(cmd.getName());
+      print(cmd.getName());
 
       if (!cmd.getAliasses().isEmpty()) {
-        System.out.print(" (or: ");
-        System.out.print(cmd.getAliasses().stream().collect(Collectors.joining(",")));
-        System.out.print(")");
+        print(" (or: ");
+        print(cmd.getAliasses().stream().collect(Collectors.joining(",")));
+        print(")");
       }
 
-      System.out.println("");
+      println("");
     });
   }
 
   public void describeLocation() {
-    System.out.println("You are now at " + getCurrentLocation().name());
-    System.out.println(getCurrentLocation().description());
+    println("You are now at " + getCurrentLocation().name());
+    println(getCurrentLocation().description());
     listDirections();
   }
 
@@ -81,7 +104,7 @@ public class World {
     return currentLocation;
   }
 
-  public void changeLocation(List<String> arguments, PromptProvider promptProvider) {
+  public void changeLocation(List<String> arguments) {
     Direction direction = null;
     if (!arguments.isEmpty()) {
       direction = Direction.safeParse(arguments.get(0).toUpperCase());
@@ -92,7 +115,7 @@ public class World {
     }
 
     while (direction == null) {
-      direction = Direction.safeParse(askArg(promptProvider, "Where to?").toUpperCase());
+      direction = Direction.safeParse(ask("Where to?").toUpperCase());
       if (direction == null || !getCurrentLocation().canTravel(direction)) {
         listDirections();
       }
@@ -104,27 +127,27 @@ public class World {
   private void listEnemies() {
     if (getCurrentLocation().hasEnemies()) {
       if (getCurrentLocation().enemies().size() == 1) {
-        System.out.println("There is a " + getCurrentLocation().enemies().get(0).getName() + " here!");
+        println("There is a " + getCurrentLocation().enemies().get(0).getName() + " here!");
       } else {
-        System.out.println("There are enemies at this location!");
+        println("There are enemies at this location!");
         getCurrentLocation().enemies().forEach(e -> {
-          System.out.println(e.getName());
+          println(e.getName());
         });
       }
     }
   }
 
-  public void attack(List<String> arguments, PromptProvider promptProvider) {
+  public void attack(List<String> arguments) {
     Enemy enemy = null;
     if (!arguments.isEmpty()) {
       enemy = EnemyFactory.get().byName(arguments.get(0)).orElse(null);
       if (enemy == null) {
-        System.out.println("No such enemy here");
+        println("No such enemy here");
       }
     }
 
     while (enemy == null) {
-      enemy = EnemyFactory.get().byName(askArg(promptProvider, "Who?")).orElse(null);
+      enemy = EnemyFactory.get().byName(ask("Who?")).orElse(null);
       if (enemy == null) {
         listEnemies();
       }
@@ -132,49 +155,67 @@ public class World {
 
     int damage = getHero().hit(enemy);
     if (damage == 0) {
-      System.out.println("You miss!");
+      println("You miss!");
     } else {
-      System.out.println(String.format("You deal %d damage using your %s!", damage, getHero().getWeapon().name()));
+      println(String.format("You deal %d damage using your %s!", damage, getHero().getWeapon().name()));
     }
 
     if (enemy.isDead()) {
-      System.out.println("You have killed the " + enemy.getName());
+      println("You have killed the " + enemy.getName());
       getCurrentLocation().removeEnemy(enemy);
     }
   }
 
-  private String askArg(PromptProvider promptProvider, String prompt) {
-    return promptProvider.ask(prompt);
-  }
-
-  public void start(PromptProvider prompt) {
+  public void start() {
+    intro();
+    createHero();
+    
     while (!getHero().isDead()) {
       String line = null;
       try {
-        line = prompt.ask("?");
+        line = ask("?");
 
         var parsedCommand = CommandParser.parse(line);
-        parsedCommand.command().execute(this, parsedCommand.arguments(), prompt);
+        parsedCommand.command().execute(this, parsedCommand.arguments());
 
         if (getCurrentLocation().hasEnemies()) {
           getCurrentLocation().enemies().forEach(enemy -> {
             int damage = enemy.hit(getHero());
             if (damage == 0) {
-              System.out.println(String.format("%s misses you", enemy.getName()));
+              println(String.format("%s misses you", enemy.getName()));
             } else {
-              System.out.println(String.format("%s hits you with his %s and deals %d damage!", enemy.getName(), enemy.getWeapon().name(), damage));
+              println(String.format("%s hits you with his %s and deals %d damage!", enemy.getName(), enemy.getWeapon().name(), damage));
             }
           });
         }
       } catch (UnknownCommandException uce) {
-        System.out.println(uce.getMessage());
+        println(uce.getMessage());
         listCommands();
       } catch (NoCommandException nce) {
-        System.out.println(nce.getMessage());
+        println(nce.getMessage());
         listCommands();
       }
     }
 
-    System.out.println("You died!");
+    println("You died!");
+  }
+
+  private String ask(String prompt) {
+    return promptProvider.ask(prompt);
+  }
+
+  private void print(String s) {
+    this.writer.print(s);
+    this.writer.flush();
+  }
+
+  private void println(String s) {
+    this.writer.println(s);
+    this.writer.flush();
+  }
+
+  private void println(Object s) {
+    this.writer.println(s.toString());
+    this.writer.flush();
   }
 }

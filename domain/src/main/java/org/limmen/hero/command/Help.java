@@ -2,7 +2,6 @@ package org.limmen.hero.command;
 
 import java.util.List;
 
-import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.domain.World;
 
 public class Help extends Command {
@@ -13,7 +12,7 @@ public class Help extends Command {
   }
 
   @Override
-  public void execute(World world, List<String> arguments, PromptProvider promptProvider) {
+  public void execute(World world, List<String> arguments) {
     world.listCommands();
   }  
 }

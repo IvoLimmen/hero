@@ -2,7 +2,6 @@ package org.limmen.hero.command;
 
 import java.util.List;
 
-import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.domain.World;
 
 public class Go extends Command {
@@ -18,7 +17,7 @@ public class Go extends Command {
   }
 
   @Override
-  public void execute(World world, List<String> arguments, PromptProvider promptProvider) {
-    world.changeLocation(arguments, promptProvider);
+  public void execute(World world, List<String> arguments) {
+    world.changeLocation(arguments);
   }
 }
