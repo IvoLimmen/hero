@@ -1,10 +1,12 @@
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jline.reader.Candidate;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.domain.Direction;
 import org.limmen.hero.domain.Enemy;
 import org.limmen.hero.domain.Link;
@@ -16,11 +18,11 @@ import org.limmen.hero.domain.factory.LocationFactory;
 
 public class Main {
 
-  public Main() throws IOException {
+  public Main() {
     loop();
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     new Main();
   }
 
@@ -37,9 +39,10 @@ public class Main {
         enemies));
   }
 
-  private void loop() throws IOException {
+  private void loop() {
     LineReader reader = LineReaderBuilder.builder()
         .appName("Hero")
+        .completer(new StringsCompleter(CommandFactory.get().listOfNamesAndAlliases().stream().map(Candidate::new).toList()))
         .build();
 
     LocationFactory.get().set(createLocations());
