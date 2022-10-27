@@ -5,20 +5,16 @@ import java.util.List;
 import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.domain.World;
 
-public class Exit extends Command {
-  
-  @Override
-  public String getName() {
-    return "exit";
-  }
+public class Status extends Command {
 
   @Override
-  public List<String> getAliasses() {
-    return List.of("quit");
+  public String getName() {
+    return "status";
   }
 
   @Override
   public void execute(World world, List<String> arguments, PromptProvider promptProvider) {
-    world.exitGame();
+    world.showStatus();    
   }
+  
 }

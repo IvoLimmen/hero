@@ -14,7 +14,7 @@ public class Go extends Command {
 
   @Override
   public String getName() {
-    return "Go";
+    return "go";
   }
 
   @Override

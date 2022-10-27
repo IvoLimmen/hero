@@ -11,9 +11,19 @@ import org.limmen.hero.domain.factory.WeaponFactory;
 
 public class Enemy extends Hero {
 
+  private String hint;
+
   @JsonProperty
   @Override
   public void setWeapon(Weapon weapon) {
     super.setWeapon(WeaponFactory.get().byName(weapon.name()));
+  }
+
+  public String getHint() {
+    return hint;
+  }
+
+  public void setHint(String hint) {
+    this.hint = hint;
   }
 }

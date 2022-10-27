@@ -14,6 +14,18 @@ public class Dice {
     return dice(12, minimum);
   }
 
+  public static DiceThrow d10(int minimum) {
+    return dice(10, minimum);
+  }
+
+  public static DiceThrow d6(int minimum) {
+    return dice(6, minimum);
+  }
+
+  public static DiceThrow d4(int minimum) {
+    return dice(4, minimum);
+  }
+
   private static DiceThrow dice(int max, int min) {
     int value = rnd.nextInt(max + 1);
     return new DiceThrow(max, min, value, value > min);

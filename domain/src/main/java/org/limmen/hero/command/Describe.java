@@ -8,8 +8,13 @@ import org.limmen.hero.domain.World;
 public class Describe extends Command {
 
   @Override
+  public List<String> getAliasses() {
+    return List.of("look", "examine");
+  }
+
+  @Override
   public String getName() {
-    return "Describe";
+    return "describe";
   }
 
   @Override

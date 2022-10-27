@@ -40,9 +40,18 @@ public class World {
     if (currentLocation.canTravel(direction)) {
       this.currentLocation = LocationFactory.get()
           .byName(currentLocation.getNewLocationName(direction));
+      System.out.println("You are now at " + getCurrentLocation().name());
+      listEnemies();    
     } else {
       System.out.println("You can not go in that direction.");
     }
+  }
+
+  public void showStatus() {
+    System.out.println("You are " + getHero().getName());
+    System.out.println("Health: " + getHero().getHealth());
+    System.out.println("Armour: " + getHero().getArmour());
+    System.out.println("Weapon: " + getHero().getWeapon().name() + " Damage: " + getHero().getWeapon().damage());
   }
 
   public void listCommands() {
@@ -63,7 +72,9 @@ public class World {
   }
 
   public void describeLocation() {
+    System.out.println("You are now at " + getCurrentLocation().name());
     System.out.println(getCurrentLocation().description());
+    listDirections();
   }
 
   public Location getCurrentLocation() {
@@ -87,11 +98,7 @@ public class World {
       }
     }
 
-    if (getCurrentLocation().canTravel(direction)) {
-      go(direction);
-      System.out.println("You are now at " + getCurrentLocation().name());
-      listEnemies();
-    }
+    go(direction);
   }
 
   private void listEnemies() {
@@ -127,18 +134,12 @@ public class World {
     if (damage == 0) {
       System.out.println("You miss!");
     } else {
-      System.out.println(String.format("You deal %d damage!", damage));
-    }
-
-    damage = enemy.hit(getHero());
-    if (damage == 0) {
-      System.out.println("Enemy misses you!");
-    } else {
-      System.out.println(String.format("Enemy hits you and deals %d damage!", damage));
+      System.out.println(String.format("You deal %d damage using your %s!", damage, getHero().getWeapon().name()));
     }
 
     if (enemy.isDead()) {
       System.out.println("You have killed the " + enemy.getName());
+      getCurrentLocation().removeEnemy(enemy);
     }
   }
 
@@ -155,6 +156,16 @@ public class World {
         var parsedCommand = CommandParser.parse(line);
         parsedCommand.command().execute(this, parsedCommand.arguments(), prompt);
 
+        if (getCurrentLocation().hasEnemies()) {
+          getCurrentLocation().enemies().forEach(enemy -> {
+            int damage = enemy.hit(getHero());
+            if (damage == 0) {
+              System.out.println(String.format("%s misses you", enemy.getName()));
+            } else {
+              System.out.println(String.format("%s hits you with his %s and deals %d damage!", enemy.getName(), enemy.getWeapon().name(), damage));
+            }
+          });
+        }
       } catch (UnknownCommandException uce) {
         System.out.println(uce.getMessage());
         listCommands();

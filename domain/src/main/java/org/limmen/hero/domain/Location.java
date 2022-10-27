@@ -27,4 +27,13 @@ public record Location(String name, String description, List<Link> links, List<E
         .get()
         .roomName();
   }
+
+  public void removeEnemy(Enemy enemy) {
+    var newList = this.enemies.stream()
+        .filter(f -> !f.getName().equals(enemy.getName()))
+        .toList();
+
+    this.enemies.clear();
+    this.enemies.addAll(newList);
+  }
 }
