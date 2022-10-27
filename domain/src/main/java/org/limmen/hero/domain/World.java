@@ -6,11 +6,10 @@ import java.util.stream.Collectors;
 
 import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.command.CommandParser;
-import org.limmen.hero.domain.factory.EnemyFactory;
 import org.limmen.hero.domain.factory.LocationFactory;
-import org.limmen.hero.domain.factory.WeaponFactory;
 import org.limmen.hero.exceptions.NoCommandException;
 import org.limmen.hero.exceptions.UnknownCommandException;
+import org.limmen.hero.util.ItemHolder;
 
 public class World {
 
@@ -32,16 +31,15 @@ public class World {
     println("Welcome to space station X5-Y.");
   }
 
-  private void createHero() {      
-      var name = ask("What is your name?");
+  private void createHero() {
+    var name = ask("What is your name?");
 
-      var hero = new Hero();
-      hero.setName(name);
-      hero.setHealth(20);
-      hero.setWeapon(WeaponFactory.get().byName("Lazer gun"));
-      hero.setArmour(10 + Dice.d10(0).value());
-      
-      this.hero = hero;
+    var hero = new Hero();
+    hero.setName(name);
+    hero.setHealth(20);
+    hero.setArmour(10 + Dice.d10(0).value());
+
+    this.hero = hero;
   }
 
   public Hero getHero() {
@@ -62,9 +60,9 @@ public class World {
   public void go(Direction direction) {
     if (currentLocation.canTravel(direction)) {
       this.currentLocation = LocationFactory.get()
-          .byName(currentLocation.getNewLocationName(direction));
+          .byName(currentLocation.newLocationName(direction));
       println("You are now at " + getCurrentLocation().name());
-      listEnemies();    
+      listEnemies();
     } else {
       println("You can not go in that direction.");
     }
@@ -74,7 +72,9 @@ public class World {
     println("You are " + getHero().getName());
     println("Health: " + getHero().getHealth());
     println("Armour: " + getHero().getArmour());
-    println("Weapon: " + getHero().getWeapon().name() + " Damage: " + getHero().getWeapon().damage());
+    println("Weapon: " + getHero().getWeapon().name() + " (Damage: " + getHero().getWeapon().damage() + ")");
+
+    listItems(getHero());
   }
 
   public void listCommands() {
@@ -98,6 +98,20 @@ public class World {
     println("You are now at " + getCurrentLocation().name());
     println(getCurrentLocation().description());
     listDirections();
+    listItems(getCurrentLocation());
+  }
+
+  private void listItems(ItemHolder holder) {
+    if (holder.hasItems()) {
+      if (holder instanceof Hero) {
+        println("You have the following:");
+      } else {
+        println("The following items can be seen:");
+      }
+      holder.getItems().forEach(item -> {
+        println(item.getName());
+      });
+    }
   }
 
   public Location getCurrentLocation() {
@@ -137,17 +151,69 @@ public class World {
     }
   }
 
+  public void use(List<String> arguments) {
+    Item item = null;
+    if (!arguments.isEmpty()) {
+      item = getHero().itemByName(arguments.get(0));
+      if (item == null) {
+        println("No such item here");
+      }
+    }
+
+    while (item == null) {
+      item = getHero().itemByName(ask("What?"));
+      if (item == null) {
+        listItems(getHero());
+      }
+    }
+
+    if (item instanceof Weapon) {
+      if (getHero().hasWeapon()) {
+        // current weapon get moved to items
+        getHero().addItem(getHero().getWeapon());
+      }
+      // weapon moves from items to weapon in hand
+      getHero().removeItem(item);
+      getHero().setWeapon((Weapon) item);
+    }
+  }
+
+  public void take(List<String> arguments) {
+    Item item = null;
+    if (!arguments.isEmpty()) {
+      item = getCurrentLocation().itemByName(arguments.get(0));
+      if (item == null) {
+        println("No such item here");
+      }
+    }
+
+    while (item == null) {
+      item = getCurrentLocation().itemByName(ask("What?"));
+      if (item == null) {
+        listItems(getCurrentLocation());
+      }
+    }
+
+    getCurrentLocation().removeItem(item);
+    getHero().addItem(item);
+  }
+
   public void attack(List<String> arguments) {
+    if (!getCurrentLocation().hasEnemies()) {
+      println("No enemies to attack");
+      return;
+    }
+
     Enemy enemy = null;
     if (!arguments.isEmpty()) {
-      enemy = EnemyFactory.get().byName(arguments.get(0)).orElse(null);
+      enemy = getCurrentLocation().enemyByName(arguments.get(0));
       if (enemy == null) {
         println("No such enemy here");
       }
     }
 
     while (enemy == null) {
-      enemy = EnemyFactory.get().byName(ask("Who?")).orElse(null);
+      enemy = getCurrentLocation().enemyByName(ask("Who?"));
       if (enemy == null) {
         listEnemies();
       }
@@ -157,19 +223,21 @@ public class World {
     if (damage == 0) {
       println("You miss!");
     } else {
-      println(String.format("You deal %d damage using your %s!", damage, getHero().getWeapon().name()));
+      println(String.format("You deal %d damage using your %s!", damage, getHero().getWeaponName()));
     }
 
     if (enemy.isDead()) {
       println("You have killed the " + enemy.getName());
       getCurrentLocation().removeEnemy(enemy);
+      getCurrentLocation().addItems(enemy.getItems());
+      getCurrentLocation().addItem(enemy.getWeapon());
     }
   }
 
   public void start() {
     intro();
     createHero();
-    
+
     while (!getHero().isDead()) {
       String line = null;
       try {
@@ -184,7 +252,8 @@ public class World {
             if (damage == 0) {
               println(String.format("%s misses you", enemy.getName()));
             } else {
-              println(String.format("%s hits you with his %s and deals %d damage!", enemy.getName(), enemy.getWeapon().name(), damage));
+              println(String.format("%s hits you with his %s and deals %d damage!", enemy.getName(),
+                  enemy.getWeaponName(), damage));
             }
           });
         }

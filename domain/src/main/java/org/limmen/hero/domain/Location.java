@@ -5,9 +5,11 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import org.limmen.hero.util.ItemHolder;
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
-public record Location(String name, String description, List<Link> links, List<Enemy> enemies) {
+public record Location(String name, String description, List<Link> links, List<Enemy> enemies, List<Item> items) implements ItemHolder {
 
   public boolean canTravel(Direction direction) {
     if (direction == null) {
@@ -20,12 +22,24 @@ public record Location(String name, String description, List<Link> links, List<E
     return !this.enemies.isEmpty();
   }
 
-  public String getNewLocationName(Direction direction) {
+  @Override
+  public List<Item> getItems() {
+    return items();
+  }
+  
+  public String newLocationName(Direction direction) {
     return this.links.stream()
         .filter(p -> p.direction().equals(direction))
         .findFirst()
         .get()
         .roomName();
+  }
+
+  public Enemy enemyByName(String name) {
+    return this.enemies.stream()
+        .filter(f -> f.getName().equalsIgnoreCase(name))
+        .findFirst()
+        .orElse(null);
   }
 
   public void removeEnemy(Enemy enemy) {

@@ -26,7 +26,7 @@ public class Dice {
     return dice(4, minimum);
   }
 
-  private static DiceThrow dice(int max, int min) {
+  public static DiceThrow dice(int max, int min) {
     int value = rnd.nextInt(max + 1);
     return new DiceThrow(max, min, value, value > min);
   }

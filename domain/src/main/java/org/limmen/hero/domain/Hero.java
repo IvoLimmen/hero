@@ -1,11 +1,20 @@
 package org.limmen.hero.domain;
 
-public class Hero {
+import java.util.ArrayList;
+import java.util.List;
+
+import org.limmen.hero.domain.factory.WeaponFactory;
+import org.limmen.hero.util.ItemHolder;
+
+public class Hero implements ItemHolder {
 
   private String name;
   private Integer health;
   private Integer armour;
   private Weapon weapon;
+  private Weapon fallbackWeapon = WeaponFactory.get().byName("Hands");
+
+  private List<Item> items = new ArrayList<>();
 
   public Integer getArmour() {
     return armour;
@@ -20,7 +29,18 @@ public class Hero {
   }
 
   public Weapon getWeapon() {
+    if (weapon == null) {
+      return fallbackWeapon;
+    }
     return weapon;
+  }
+
+  public Weapon getFallbackWeapon() {
+    return fallbackWeapon;
+  }
+
+  public List<Item> getItems() {
+    return items;
   }
 
   public void setArmour(Integer armour) {
@@ -39,14 +59,20 @@ public class Hero {
     this.weapon = weapon;
   }
 
-  public Integer hit(Hero enemy) {
-    var result = Dice.d20(enemy.getArmour());
+  public void setItems(List<Item> items) {
+    this.items = items;
+  }
 
-    System.out.println("D20: " + result);
+  public String getWeaponName() {
+    return getWeapon().getName();
+  }
+
+  public Integer hit(Hero enemy) {
+    var result = Dice.d20(enemy.getArmour());    
     
     // we hit
-    if (result.success()) {
-      int value = Dice.d12(0).value();
+    if (result.success()) {      
+      int value = Dice.dice(getWeapon().damage(), 0).value();
       enemy.takeDamage(value);
 
       return value;
@@ -59,6 +85,10 @@ public class Hero {
     this.health -= damage;
   }
 
+  public boolean hasWeapon() {
+    return this.weapon != null;
+  }
+  
   public boolean isDead() {
     return this.health <= 0;
   }

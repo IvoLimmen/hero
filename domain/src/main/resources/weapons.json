@@ -1,7 +1,7 @@
 [
   { "name": "Hands", "damage": 1 },
-  { "name": "Power gloves", "damage": 2 },
-  { "name": "Lazer cutter", "damage": 3 },
-  { "name": "Light saber", "damage": 4 },
-  { "name": "Lazer gun", "damage": 6 }
+  { "name": "Powergloves", "damage": 2 },
+  { "name": "Lazercutter", "damage": 3 },
+  { "name": "Lightsaber", "damage": 4 },
+  { "name": "Lazergun", "damage": 6 }
 ]
