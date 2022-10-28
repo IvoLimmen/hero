@@ -2,6 +2,8 @@ package org.limmen.hero.domain;
 
 import java.util.Random;
 
+import org.limmen.hero.dto.DiceThrow;
+
 public class Dice {
   
   private static Random rnd = new Random();

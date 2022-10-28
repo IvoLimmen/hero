@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.command.CommandParser;
 import org.limmen.hero.domain.factory.LocationFactory;
+import org.limmen.hero.domain.factory.TextFactory;
 import org.limmen.hero.exceptions.NoCommandException;
 import org.limmen.hero.exceptions.UnknownCommandException;
 import org.limmen.hero.util.ItemHolder;
@@ -28,7 +29,7 @@ public class World {
   }
 
   private void intro() {
-    println("Welcome to space station X5-Y.");
+    println(TextFactory.get().byName("intro"));
   }
 
   private void createHero() {
