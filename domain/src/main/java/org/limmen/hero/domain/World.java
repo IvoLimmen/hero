@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.command.CommandParser;
 import org.limmen.hero.domain.factory.LocationFactory;
@@ -21,6 +23,8 @@ public class World {
   private PrintWriter writer;
 
   private PromptProvider promptProvider;
+
+  private Statistics statistics = new Statistics();
 
   public World(PrintWriter writer, PromptProvider promptProvider, Location startLocation) {
     this.currentLocation = startLocation;
@@ -265,13 +269,18 @@ public class World {
         println(nce.getMessage());
         listCommands();
       }
+
+      // keep track
+      statistics.update(hero);
     }
 
     println("You died!");
   }
 
   private String ask(String prompt) {
-    return promptProvider.ask(prompt);
+    var health = Ansi.ansi().fg(statistics.getHealth() > 5 ? Color.GREEN : Color.RED).a(statistics.getHealth()).reset().toString();
+    var stats = String.format("[ H:%s S:%d ]", health, statistics.getSteps());
+    return promptProvider.ask(stats + prompt);
   }
 
   private void print(String s) {
