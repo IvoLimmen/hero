@@ -9,13 +9,30 @@ import org.limmen.hero.util.ItemHolder;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonSerialize
-public record Location(String name, String description, List<Link> links, List<Enemy> enemies, List<Item> items) implements ItemHolder {
+public record Location(
+    String name, 
+    String description, 
+    List<Link> links, 
+    List<Enemy> enemies, 
+    List<Item> items,
+    int minOccurance,
+    int maxOccurance,
+    boolean visited) 
+    implements ItemHolder {
 
   public boolean canTravel(Direction direction) {
     if (direction == null) {
       return false;
     }
     return links.stream().anyMatch(p -> p.direction().equals(direction));
+  }
+
+  public void addNode(Direction direction, String locationName) {
+    this.links.add(new Link(direction, locationName));
+  }
+
+  public void addEnemy(Enemy enemy) {
+    this.enemies.add(enemy);
   }
 
   public boolean hasEnemies() {

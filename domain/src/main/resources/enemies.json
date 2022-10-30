@@ -1,3 +1,3 @@
 [
-  { "name": "Borg", "health": 20, "armour": 15, "weapon": { "name": "Lazercutter" }, "hint": "A faint red glow eminates from the glass through the door" }
+  { "name": "Droid", "health": 5, "armour": 5, "weapon": { "name": "Lazercutter" } }
 ]

@@ -10,14 +10,13 @@ import org.jline.reader.impl.completer.StringsCompleter;
 import org.limmen.hero.command.CommandFactory;
 import org.limmen.hero.domain.Direction;
 import org.limmen.hero.domain.Enemy;
-import org.limmen.hero.domain.Item;
-import org.limmen.hero.domain.Link;
 import org.limmen.hero.domain.Location;
 import org.limmen.hero.domain.PromptProvider;
 import org.limmen.hero.domain.World;
 import org.limmen.hero.domain.factory.EnemyFactory;
 import org.limmen.hero.domain.factory.LocationFactory;
 import org.limmen.hero.domain.factory.WeaponFactory;
+import org.limmen.hero.util.JSON;
 
 public class Main {
 
@@ -30,22 +29,24 @@ public class Main {
   }
 
   private List<Location> createLocations() {    
+    LocationFactory.get().set(JSON.loadList("/locations.json", Location.class));
+    
     var enemies = new ArrayList<Enemy>();
-    enemies.add(EnemyFactory.get().byName("borg").get());
-    var items = new ArrayList<Item>();
-    items.add(WeaponFactory.get().byName("Lazergun"));
+    enemies.add(EnemyFactory.get().byName("Droid").get());
 
-    return List.of(
-      new Location("start", 
-        "Big docking station. All metal walls except for the bay doors",
-        List.of(new Link(Direction.DOWN, "space")),
-        new ArrayList<>(),
-        items),
-      new Location("space", 
-        "Vast space. Nothing to see here, except for a million stars",
-        List.of(new Link(Direction.UP, "start")),
-        enemies, 
-        new ArrayList<>()));
+    var loc1 = LocationFactory.get().byName("Dockingstation");
+    loc1.addNode(Direction.EAST, "Hallway");
+    loc1.addItem(WeaponFactory.get().byName("Lazergun"));
+
+    var loc2 = LocationFactory.get().byName("Hallway");
+    loc2.addNode(Direction.EAST, "Controlroom");
+    loc2.addNode(Direction.SOUTH, "Dockingstation");
+
+    var loc3 = LocationFactory.get().byName("Controlroom");
+    loc3.addNode(Direction.SOUTH, "Hallway");
+    loc3.addEnemy(EnemyFactory.get().byName("Droid").get());
+
+    return List.of(loc1, loc2, loc3);
   }
 
   private void boot() {
@@ -62,7 +63,7 @@ public class Main {
     };
 
     var writer = new PrintWriter(System.out);
-    var location = LocationFactory.get().byName("start");
+    var location = LocationFactory.get().byName("Dockingstation");
     var world = new World(writer, prompt, location);
 
     world.start();
