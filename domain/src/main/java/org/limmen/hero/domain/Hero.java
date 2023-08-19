@@ -35,10 +35,6 @@ public class Hero implements ItemHolder {
     return weapon;
   }
 
-  public Weapon getFallbackWeapon() {
-    return fallbackWeapon;
-  }
-
   public List<Item> getItems() {
     return items;
   }

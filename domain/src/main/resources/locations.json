@@ -21,7 +21,7 @@
   },
   {
     "name": "Controlroom",
-    "description": "Very large room. One big entrance. From the entrance you can see a 2 rows of desks on each side of the pathway that leads up to the main viewer. Almost looks like a theather.",
+    "description": "A room with one big entrance. From the entrance you can see a 2 rows of desks on each side of the pathway that leads up to the main viewer. Almost looks like a theather.",
     "links": [],
     "enemies": [],
     "items": [],
@@ -31,7 +31,7 @@
   },
   {
     "name": "Storageroom",
-    "description": "Large room filled with stuff.",
+    "description": "Room filled with metal cabinets.",
     "links": [],
     "enemies": [],
     "items": [],
